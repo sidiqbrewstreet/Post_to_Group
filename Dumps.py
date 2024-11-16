@@ -1,7 +1,7 @@
 import requests, re, json
 
 class Dumps:
-    def __init__(self, cookie):
+    def __init__(self, cookie:str):
         self.ses = requests.Session()
         self.ok, self.ids = 0, []
         self.cookies = cookie

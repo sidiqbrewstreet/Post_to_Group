@@ -14,15 +14,41 @@ class UploadGraphQL:
             for IDGroup in GroupID:
                 print('\rSedang Menyiapkan Data To > {}                                         '.format(str(IDGroup).split('|')[0]), end='')
                 rtn_data = self.Getdata(IDGroup=str(IDGroup).split('|')[0])
-                if rtn_data: self.GetIMG(dir_path, caption, str(IDGroup).split('|')[0])
+                if rtn_data:
+                    rtn_foto_id = self.GetIMG(dir_path, str(IDGroup).split('|')[0])
+                    if rtn_foto_id:
+                        rtn_upload = self.Uploads(caption=caption, dir_path=dir_path)
+                        if rtn_upload:
+                            self.OK +=1
+                            print('\r', end='')
+                            print('Link Group :', rtn_upload[1])
+                            print('Link Post  :', rtn_upload[3])
+                            print('')
+                            print('\rSukses Upload =-{} Gagal Upload =-{}       '.format(self.OK, self.Fail), end='')
+
+                        else:
+                            self.Fail +=1
+                            print('\r                                                               ', end='')
+                            print('\rFailed Upload To Group > {}                '.format(self.GroupID), end='')
+                            print('\n')
+                            print('\rSukses Upload =-{} Gagal Upload =-{}       '.format(self.OK, self.Fail), end='')
+                    else:
+                        self.Fail +=1
+                        print('\r                                                               ', end='')
+                        print('\rFailed Upload To Group > {}                '.format(self.GroupID), end='')
+                        print('\n')
+                        print('\rSukses Upload =-{} Gagal Upload =-{}       '.format(self.OK, self.Fail), end='')
                 else:
                     self.Fail +=1
                     print('\r                           ', end='')
                     print('\rFailed Upload To Group > {}                                                      '.format(str(IDGroup).split('|')[0]), end='')
                     print('\n')
                     print('\rSukses Upload =-{} Gagal Upload =-{}       '.format(self.OK, self.Fail), end='')
-                    time.sleep(3)
-                    self.jeda(int(timer), 'Upload Ulang')
+                    
+                time.sleep(3)
+                self.jeda(int(timer), 'Upload Ulang')
+            time.sleep(3)
+            self.jeda(int(timer), 'Upload Ulang')
         print('\rSukses Upload =-{} Gagal Upload =-{}       '.format(self.OK, self.Fail), end='')
         print('')
 
@@ -46,10 +72,10 @@ class UploadGraphQL:
 
         })
         response = self.ses.get('https://web.facebook.com/groups/{}'.format(IDGroup), cookies={'cookie': self.cookie}, headers=headers, allow_redirects=True).text.replace('\\','')
-        self.sessionID = re.search(r'"UFI2Config",\[\],{"sessionID":"(.*?)"', str(response)).group(1)
-        self.GroupID = re.search(r'"variables":{"groupID":"(\d+)"', str(response)).group(1)
         try:
-            if   self.typ == 1: self.actorid = re.search(r'"name":"Peserta anonim","id":"(\d+)"', str(response)).group(1)
+            self.sessionID = re.search(r'"UFI2Config",\[\],{"sessionID":"(.*?)"', str(response)).group(1)
+            self.GroupID = re.search(r'"variables":{"groupID":"(\d+)"', str(response)).group(1)
+            if   self.typ == 1: self.actorid = re.search(r'"__typename":"GroupAnonAuthorProfile","id":"(\d+)"', str(response)).group(1)
             elif self.typ == 2: self.actorid = re.search(r'"userId":(\d+)', str(response)).group(1)
             self.data = {
                 'av': self.actorid,
@@ -73,7 +99,7 @@ class UploadGraphQL:
             return True
         except AttributeError: return False
         
-    def GetIMG(self, dir_path, caption, GroupID):
+    def GetIMG(self, dir_path, GroupID):
         print('\rMembuka File Gambar > {}               '.format(os.path.basename(dir_path)), end='')
         file = {'file':(os.path.basename(dir_path), open(dir_path, 'rb'))}
         data = self.data.copy()
@@ -84,11 +110,14 @@ class UploadGraphQL:
             'farr':file['file']
         })
         pos = self.ses.post('https://upload.facebook.com/ajax/react_composer/attachments/photo/upload',data=data, files=file, cookies={'cookie':self.cookie}, allow_redirects=True).text
-        self.id_foto = re.search('"photoID":"(.*?)"',str(pos)).group(1)
-        if self.id_foto: self.Uploads(caption=caption, dir_path=dir_path)
-        else: 
-            self.Fail += 1
-            print(f'\rGagal Mengambil Photo ID pada gambar {dir_path} - Group {GroupID}', end='')
+        try:
+            self.id_foto = re.search('"photoID":"(.*?)"',str(pos)).group(1)
+            if self.id_foto: return True
+            else: 
+                self.Fail += 1
+                print(f'\rGagal Mengambil Photo ID pada gambar {dir_path} - Group {GroupID}', end='')
+                return False
+        except AttributeError: return False
 
     def var_input(self, caption) -> dict:
         var_output = {
@@ -165,21 +194,10 @@ class UploadGraphQL:
             'doc_id': self.doc_id,
         })
         response = self.ses.post('https://web.facebook.com/api/graphql/', cookies={'cookie': self.cookie}, headers=self.headers, data=data, allow_redirects=True).text.replace('\\', '')
-        try:
-            match = re.findall(r'"url":"(.*?)"', str(response))
-            self.OK +=1
-            print('\r', end='')
-            print('Link Group :', match[1])
-            print('Link Post  :', match[3])
-            print('')
-            print('\rSukses Upload =-{} Gagal Upload =-{}       '.format(self.OK, self.Fail), end='')
-        except IndexError:
-            self.Fail +=1
-            print('\r                                                               ', end='')
-            print('\rFailed Upload To Group > {}                '.format(self.GroupID), end='')
-            print('\n')
-            print('\rSukses Upload =-{} Gagal Upload =-{}       '.format(self.OK, self.Fail), end='')
-            
+        match = re.findall(r'"url":"(.*?)"', str(response))
+        if not match: return False
+        else: return True
+
 class Share:
     def __init__(self, cookies:str, url:list, caption:list, IDGroup:list, timer:int):
         self.OK, self.Fail = 0, 0

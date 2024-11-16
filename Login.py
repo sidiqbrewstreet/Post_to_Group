@@ -31,18 +31,30 @@ def checkcookie():
         return(Relogin())
     except KeyboardInterrupt: exit()
 
-def getinfo(cookie):
+def getinfo(cookie, types='Normal'):
     ses = requests.Session()
-    try:
-        req1 = ses.get('https://www.facebook.com/adsmanager/manage/campaigns',cookies={'cookie': cookie},allow_redirects=True).text
-        nek1 = re.search('window\.location\.replace\("(.*?)"\)',str(req1)).group(1).replace('\\','')
-        req2 = ses.get(nek1,cookies={'cookie': cookie},allow_redirects=True).text
-        tok  = re.search('accessToken="(.*?)"',str(req2)).group(1)
-        req  = ses.get(f'https://graph.facebook.com/me?fields=name,id&access_token={tok}',cookies={'cookie': cookie}).text
-        name = re.search('"name":"(.*?)"',str(req)).group(1)
-        user = re.search('"id":"(.*?)"'  ,str(req)).group(1)
-        return(Print_Results(name=name, user=user))
-    except requests.exceptions.ConnectionError: print('\rKoneksi Bermasalah', end='');exit()
+    if 'Normal' in types:
+        try:
+            req1 = ses.get('https://www.facebook.com/adsmanager/manage/campaigns',cookies={'cookie': cookie},allow_redirects=True).text
+            nek1 = re.search('window\.location\.replace\("(.*?)"\)',str(req1)).group(1).replace('\\','')
+            req2 = ses.get(nek1,cookies={'cookie': cookie},allow_redirects=True).text
+            tok  = re.search('accessToken="(.*?)"',str(req2)).group(1)
+            req  = ses.get(f'https://graph.facebook.com/me?fields=name,id&access_token={tok}',cookies={'cookie': cookie}).text
+            name = re.search('"name":"(.*?)"',str(req)).group(1)
+            user = re.search('"id":"(.*?)"'  ,str(req)).group(1)
+            return(Print_Results(name=name, user=user))
+        except requests.exceptions.ConnectionError: print('\rKoneksi Bermasalah', end='');exit()
+    else:
+        try:
+            req1 = ses.get('https://www.facebook.com/adsmanager/manage/campaigns',cookies={'cookie': cookie},allow_redirects=True).text
+            nek1 = re.search('window\.location\.replace\("(.*?)"\)',str(req1)).group(1).replace('\\','')
+            req2 = ses.get(nek1,cookies={'cookie': cookie},allow_redirects=True).text
+            tok  = re.search('accessToken="(.*?)"',str(req2)).group(1)
+            req  = ses.get(f'https://graph.facebook.com/me?fields=name,id&access_token={tok}',cookies={'cookie': cookie}).text
+            name = re.search('"name":"(.*?)"',str(req)).group(1)
+            user = re.search('"id":"(.*?)"'  ,str(req)).group(1)
+            return(name)
+        except AttributeError: return False
 
 def Print_Results(name, user):
     clear()

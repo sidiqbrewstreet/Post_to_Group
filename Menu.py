@@ -14,13 +14,30 @@ class Menu:
         else: exit('Login Gagal, Silahkan Login Dengan Cookies Fresh')
     
     def Folder_Menu(self):
-        folder_path = input("Masukkan path folder (misal: Downloads/img) : ")
+        folder_path = input("\rMasukkan path folder (misal: Downloads/img) : ")
         if os.path.isdir(folder_path):
             files = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
             return files
         else:
-            print('')
-            exit("Path folder tidak ditemukan.")
+            print("\rPath folder tidak ditemukan.                           ", end='')
+            return(self.Folder_Menu())
+    
+    def Rotate_Cookie(self, type_cookie='Normal'):
+        if 'Rotate' in type_cookie:
+            cookie = input('\r\r[?] Masukan Cookie, [ENTER] Untuk Kembali : ')
+            if not cookie: return (open('Login/cookie.json','r', encoding='utf-8').read())
+            else:
+                check_cookie = getinfo(type_cookie, 'Rotate')
+                if check_cookie:
+                    print('')
+                    print('\rLogin Berhasil Sebagai {}      '.format(check_cookie), end='')
+                    return cookie
+                else:
+                    print('\r\r\r\rLogin Gagal Kemungkinan Cookie Expired', end='')
+                    time.sleep(3)
+                    print('\r                                                          ')
+                    return(self.Rotate_Cookie('Rotate'))
+        else: pass
 
     def MainMenu(self):
         try:
@@ -31,7 +48,7 @@ class Menu:
             elif chose in ['1', '01']:
                 print('Apakah Ingin Mengunakan Cookie Lain ? (Y/T)')
                 type_cookie = input('[?] Pilih (Y/T) : ').lower();print('')
-                if   type_cookie in ['y']: self.cookie = input('[?] Masukan Cookie : ');print('')
+                if   type_cookie in ['y']: self.cookie = self.Rotate_Cookie('Rotate');print('')
                 elif type_cookie in ['t']: self.cookie = open('Login/cookie.json','r', encoding='utf-8').read()
                 else: exit('Input Tidak Valid!')
                 print('Upload Sebagai Anonim (A) / Personal (P)')
@@ -49,9 +66,11 @@ class Menu:
                 else: exit('Input Tidak Valid!')
                 print('Atur Waktu Tunggu Dalam Detik')
                 timers = input('[?] Delay : ');print('')
-                DM = Dumps(self.cookie)
-                list_id_group = DM.Dumps_ID_Group()
-                UploadGraphQL(typ=typ, cookie=self.cookie, GroupID=list_id_group, filename=filename, captionz=caption, timer=timers)
+                if self.cookie is None: exit('\nCookie Tidak Ditemukan')
+                else:
+                    DM = Dumps(self.cookie)
+                    list_id_group = DM.Dumps_ID_Group()
+                    UploadGraphQL(typ=typ, cookie=self.cookie, GroupID=list_id_group, filename=filename, captionz=caption, timer=timers)
 
             elif chose in ['2', '02']: 
                 print('Apakah Ingin Mengunakan Cookie Lain ? (Y/T)')
