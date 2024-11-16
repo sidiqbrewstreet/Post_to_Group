@@ -7,7 +7,6 @@ class UploadGraphQL:
         self.ses      = requests.Session()
         self.typ      = int(typ)
         self.cookie   = cookie
-        self.timer    = timer
         self.headers  = {'Host': 'web.facebook.com','Sec-Ch-Ua-Platform': '"Windows"','Sec-Ch-Ua': '"Chromium";v="130", "Google Chrome";v="130", "Not?A_Brand";v="99"','Sec-Ch-Ua-Mobile': '?0','Sec-Ch-Prefers-Color-Scheme': 'dark','User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36','Sec-Ch-Ua-Platform-Version': '"15.0.0"','Accept': '*/*','Origin': 'https://web.facebook.com','Sec-Fetch-Site': 'same-origin','Sec-Fetch-Mode': 'cors','Sec-Fetch-Dest': 'empty','Referer': 'https://web.facebook.com','Accept-Encoding': 'gzip, deflate','Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7','Priority': 'u=1, i'}
         for dir_path, caption in zip_longest(filename, captionz, fillvalue=None):
             if caption is None:
@@ -18,23 +17,23 @@ class UploadGraphQL:
                 if rtn_data: self.GetIMG(dir_path, caption, str(IDGroup).split('|')[0])
                 else:
                     self.Fail +=1
-                    print('\r                                                                   ', end='')
+                    print('\r                           ', end='')
                     print('\rFailed Upload To Group > {}                                                      '.format(str(IDGroup).split('|')[0]), end='')
                     print('\n')
                     print('\rSukses Upload =-{} Gagal Upload =-{}       '.format(self.OK, self.Fail), end='')
                     time.sleep(3)
-                    self.jeda(self.timer, 'Upload Ulang')
+                    self.jeda(int(timer), 'Upload Ulang')
         print('\rSukses Upload =-{} Gagal Upload =-{}       '.format(self.OK, self.Fail), end='')
         print('')
 
     def jeda(self, timers:int, msg:str):
-        while timers > 0:
+        while int(timers) > 0:
             print(f'\rMenunggu {msg} Dalam {timers} Detik...            ', end='')
             time.sleep(1)
             timers -= 1
 
     def Getdata(self, IDGroup):
-        print('\rMengambil Data Group > {}                                                      '.format(IDGroup), end='')
+        print('\rMengambil Data Group > {}              '.format(IDGroup), end='')
         headers = self.headers.copy()
         headers.update({
             'X-Fb-Friendly-Name': 'ComposerStoryCreateMutation',
@@ -75,7 +74,7 @@ class UploadGraphQL:
         except AttributeError: return False
         
     def GetIMG(self, dir_path, caption, GroupID):
-        print('\rMembuka File Gambar > {}                                                                           '.format(os.path.basename(dir_path)), end='')
+        print('\rMembuka File Gambar > {}               '.format(os.path.basename(dir_path)), end='')
         file = {'file':(os.path.basename(dir_path), open(dir_path, 'rb'))}
         data = self.data.copy()
         data.update({
@@ -120,7 +119,7 @@ class UploadGraphQL:
         return var_output
     
     def Uploads(self, caption, dir_path):
-        print('\rMengupload File Gambar {} To > {}                                              '.format(os.path.basename(dir_path), self.GroupID), end='')
+        print('\rMengupload File Gambar {} To > {}              '.format(os.path.basename(dir_path), self.GroupID), end='')
         data = self.data.copy()
         data.update({
             'fb_api_caller_class': 'RelayModern',
@@ -174,17 +173,13 @@ class UploadGraphQL:
             print('Link Post  :', match[3])
             print('')
             print('\rSukses Upload =-{} Gagal Upload =-{}       '.format(self.OK, self.Fail), end='')
-            time.sleep(3)
-            self.jeda(self.timer, 'Upload Ulang')
         except IndexError:
             self.Fail +=1
             print('\r                                                               ', end='')
-            print('\rFailed Upload To Group > {}                                                  '.format(self.GroupID), end='')
+            print('\rFailed Upload To Group > {}                '.format(self.GroupID), end='')
             print('\n')
             print('\rSukses Upload =-{} Gagal Upload =-{}       '.format(self.OK, self.Fail), end='')
-            time.sleep(3)
-            self.jeda(self.timer, 'Upload Ulang')
-
+            
 class Share:
     def __init__(self, cookies:str, url:list, caption:list, IDGroup:list, timer:int):
         self.OK, self.Fail = 0, 0
