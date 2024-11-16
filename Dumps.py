@@ -1,4 +1,4 @@
-import requests, re, json
+import requests, re, json, time
 
 class Dumps:
     def __init__(self, cookie:str):
@@ -16,7 +16,7 @@ class Dumps:
             else:
                 self.ok +=1
                 self.ids.append(f'{group_id}|{group_name}')
-                print(f"\rMengecek Group {self.ok}  ", end='')
+                print(f"\rMengumpulkan Group {self.ok}  ", end='')
         match = re.search(r'"end_cursor":"(.*?)","has_next_page":true}},"total_joined_groups":(\d+)', str(response))
         if match:
             end_cursor = match.group(1)
@@ -69,4 +69,6 @@ class Dumps:
         if parser['page_info']['end_cursor']:
             nextpages = parser['page_info']['end_cursor']
             self.LoopDumpsGroup(nextpages)
-        else: print('\rTerdapat {} Group'.format(self.ok), end='')
+        else:
+            print('\rTerdapat {} Group                  '.format(self.ok), end='')
+            time.sleep(3)

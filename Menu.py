@@ -27,10 +27,10 @@ class Menu:
             cookie = input('\r\r[?] Masukan Cookie, [ENTER] Untuk Kembali : ')
             if not cookie: return (open('Login/cookie.json','r', encoding='utf-8').read())
             else:
-                check_cookie = getinfo(type_cookie, 'Rotate')
+                check_cookie = getinfo(cookie, 'Rotate')
                 if check_cookie:
                     print('')
-                    print('\rLogin Berhasil Sebagai {}      '.format(check_cookie), end='')
+                    print('\rLogin Berhasil Sebagai {}      '.format(check_cookie), end='\n')
                     return cookie
                 else:
                     print('\r\r\r\rLogin Gagal Kemungkinan Cookie Expired', end='')

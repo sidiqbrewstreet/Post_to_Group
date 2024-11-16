@@ -19,10 +19,12 @@ class UploadGraphQL:
                     if rtn_foto_id:
                         rtn_upload = self.Uploads(caption=caption, dir_path=dir_path)
                         if rtn_upload:
+                            if self.typ == 1: link_post = rtn_upload[3]
+                            else: link_post = rtn_upload[0]
                             self.OK +=1
                             print('\r', end='')
                             print('Link Group :', rtn_upload[1])
-                            print('Link Post  :', rtn_upload[3])
+                            print('Link Post  :', link_post)
                             print('')
                             print('\rSukses Upload =-{} Gagal Upload =-{}       '.format(self.OK, self.Fail), end='')
 
@@ -47,8 +49,6 @@ class UploadGraphQL:
                     
                 time.sleep(3)
                 self.jeda(int(timer), 'Upload Ulang')
-            time.sleep(3)
-            self.jeda(int(timer), 'Upload Ulang')
         print('\rSukses Upload =-{} Gagal Upload =-{}       '.format(self.OK, self.Fail), end='')
         print('')
 
@@ -196,7 +196,7 @@ class UploadGraphQL:
         response = self.ses.post('https://web.facebook.com/api/graphql/', cookies={'cookie': self.cookie}, headers=self.headers, data=data, allow_redirects=True).text.replace('\\', '')
         match = re.findall(r'"url":"(.*?)"', str(response))
         if not match: return False
-        else: return True
+        else: return match
 
 class Share:
     def __init__(self, cookies:str, url:list, caption:list, IDGroup:list, timer:int):
