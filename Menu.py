@@ -87,7 +87,7 @@ class Menu:
                 elif ctpn.lower() in ['t'] or not ctpn: caption = []
                 else: exit('Input Tidak Valid!')
                 print('Atur Waktu Tunggu Dalam Detik')
-                timers = input('[?] Delay : ');print('')
+                timers = int(input('[?] Delay : '));print('')
                 DM = Dumps(self.cookie)
                 list_id_group = DM.Dumps_ID_Group()
                 Share(cookies=self.cookie, url=url, caption=caption, IDGroup=list_id_group, timer=timers)

@@ -70,5 +70,5 @@ class Dumps:
             nextpages = parser['page_info']['end_cursor']
             self.LoopDumpsGroup(nextpages)
         else:
-            print('\rTerdapat {} Group                  '.format(self.ok), end='')
+            print('\rJumlah Bergabung {} Group                  '.format(self.ok))
             time.sleep(3)
