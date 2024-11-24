@@ -217,33 +217,47 @@ class UploadGraphQL:
 
 class Share:
     def __init__(self, cookies:str, url:list, caption:list, IDGroup:list, timer:int):
+        self.stop_all = False
         self.OK, self.Fail = 0, 0
         self.ses = requests.Session()
         self.cookie  = cookies
         self.head = {'accept': '*/*','accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7','content-type': 'application/x-www-form-urlencoded','origin': 'https://web.facebook.com','priority': 'u=1, i','referer': 'https://web.facebook.com/profile.php?id={}'.format(re.search(r'c_user=(\d+)', str(self.cookie)).group(1)),'sec-ch-prefers-color-scheme': 'dark','sec-ch-ua': '','sec-ch-ua-full-version-list': '','sec-ch-ua-mobile': '?0','sec-ch-ua-model': '""','sec-ch-ua-platform': '"Windows"','sec-ch-ua-platform-version': '"15.0.0"','sec-fetch-dest': 'empty','sec-fetch-mode': 'cors','sec-fetch-site': 'same-origin','user-agent': '','x-asbd-id': '129477','x-fb-friendly-name': 'ComposerStoryCreateMutation','x-fb-lsd': ''}
         for link, captions in zip_longest(url, caption):
-            if captions is None:
+            if self.stop_all: break
+            else:
+                if captions is None:
                     captions = random.choice(caption) if caption else ''
-            for GroupID in IDGroup:
-                head = Useragents()
-                self.headers = self.head.copy()
-                self.headers.update({'user-agent': head['user-agent'],'sec-ch-ua' : head['sec-ch-ua'],'sec-ch-ua-full-version-list': head['sec-ch-ua-full-version-list']})
-                getdata = self.GetData(urlx=link)
-                if getdata:
-                    share = self.ShareToGroup(caption=captions, GroupID=str(GroupID).split('|')[0])
-                    if share:
-                        print('')
-                        print('\rSukses =-{} Gagal =-{}                 '.format(self.OK, self.Fail), end='')
-                        time.sleep(3)
+                for GroupID in IDGroup:
+                    if self.stop_all: break
                     else:
-                        print('\r                                                           ', end='')
-                        print('\rGagal Share Postingan to > {}                  '.format(str(GroupID).split('|')[0]), end='')
-                        print('\r                                                           ', end='')
-                        self.Fail +=1
-                else: 
-                    self.Fail +=1
-                    print('\rGagal Mengambil Data                   ', end='')
-                self.jeda(timer, 'Membagikan Ulang')
+                        head = Useragents()
+                        self.headers = self.head.copy()
+                        self.headers.update({'user-agent': head['user-agent'],'sec-ch-ua' : head['sec-ch-ua'],'sec-ch-ua-full-version-list': head['sec-ch-ua-full-version-list']})
+                        getdata = self.GetData(urlx=link)
+                        # if 'checkpoint' in getdata:
+                        #     print('\rSepertinya Akun Anda Kena Checpoint Silahkan Periksa Akun Anda     ', end='')
+                        #     # self.stop_all = True
+                        #     break
+                        if getdata:
+                            share = self.ShareToGroup(caption=captions, GroupID=str(GroupID).split('|')[0])
+                            # if 'checkpoint' in share:
+                            #     print('\rSepertinya Akun Anda Kena Checpoint Silahkan Periksa Akun Anda     ', end='')
+                            #     # self.stop_all = True
+                            #     break
+                            if share:
+                                print('')
+                            else:
+                                print('\r                                                           ', end='')
+                                print('\rGagal Share Postingan to > {}                  '.format(str(GroupID).split('|')[0]), end='')
+                                print('')
+                                print('')
+                                self.Fail +=1
+                        else: 
+                            self.Fail +=1
+                            print('\rGagal Mengambil Data                   ', end='')
+                    print('\rSukses =-{} Gagal =-{}                 '.format(self.OK, self.Fail), end='')
+                    time.sleep(3)
+                    self.jeda(timer, 'Membagikan Ulang')
         print('\rSukses Membagikan =-{} Postingan             \nGagal  Membagikan =-{} Postingan                 '.format(self.OK, self.Fail))
 
     def jeda(self, timers:int, msg:str):
@@ -252,27 +266,31 @@ class Share:
             time.sleep(1)
             timers -= 1
 
+    def Data(self):
+        headers = {'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7','accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7','dpr': '1.5','priority': 'u=0, i','sec-ch-prefers-color-scheme': 'dark','sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"','sec-ch-ua-full-version-list': '"Google Chrome";v="131.0.6778.86", "Chromium";v="131.0.6778.86", "Not_A Brand";v="24.0.0.0"','sec-ch-ua-mobile': '?0','sec-ch-ua-model': '""','sec-ch-ua-platform': '"Windows"','sec-ch-ua-platform-version': '"15.0.0"','sec-fetch-dest': 'document','sec-fetch-mode': 'navigate','sec-fetch-site': 'none','sec-fetch-user': '?1','upgrade-insecure-requests': '1','user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36','viewport-width': '619'}
+        response = self.ses.get('https://www.facebook.com/', headers=headers, cookies={'cookie': self.cookie}).text.replace('\\', '')
+        self.data = {'av': re.search(r'"actorID":"(\d+)"', str(response)).group(1),'__aaid': '0','__user': re.search(r'"actorID":"(\d+)"', str(response)).group(1),'__a': '1','__req': '1t','__hs': re.search(r'"haste_session":"(.*?)"', str(response)).group(1),'dpr': '1','__ccg': re.search(r'"connectionClass":"(.*?)"', str(response)).group(1),'__rev': re.search(r'"rev":(\d+)', str(response)).group(1),'__hsi': re.search(r'"hsi":"(\d+)"', str(response)).group(1),'__comet_req': re.search(r'__comet_req=(\d+)&', str(response)).group(1),'fb_dtsg': re.search(r'"DTSGInitialData",\[\],{"token":"(.*?)"}',str(response)).group(1),'jazoest': re.search(r'jazoest=(\d+)', str(response)).group(1),'lsd': re.search(r'"LSD",\[\],{"token":"(.*?)"', str(response)).group(1),'__spin_r': re.search(r'"__spin_r":(\d+)', str(response)).group(1),'__spin_b': re.search(r'"__spin_b":"(.*?)"', str(response)).group(1),'__spin_t': re.search(r'"__spin_t":(\d+)'  , str(response)).group(1)}
+
     def GetData(self, urlx):
+        headers  = {'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7','accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7','cache-control': 'max-age=0','dpr': '1.5','priority': 'u=0, i','sec-ch-prefers-color-scheme': 'dark','sec-ch-ua': '"Chromium";v="130", "Google Chrome";v="130", "Not?A_Brand";v="99"','sec-ch-ua-full-version-list': '"Chromium";v="130.0.6723.117", "Google Chrome";v="130.0.6723.117", "Not?A_Brand";v="99.0.0.0"','sec-ch-ua-mobile': '?0','sec-ch-ua-model': '""','sec-ch-ua-platform': '"Windows"','sec-ch-ua-platform-version': '"15.0.0"','sec-fetch-dest': 'document','sec-fetch-mode': 'navigate','sec-fetch-site': 'same-origin','sec-fetch-user': '?1','upgrade-insecure-requests': '1','user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36','viewport-width': '641',}
+        response = self.ses.get(urlx, headers=headers, cookies={'cookie': self.cookie}).text.replace('\\','')
+        #if 'checkpoint' in response: return('checkpoint')
+    
         try:
-            headers  = {'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7','accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7','cache-control': 'max-age=0','cookie': self.cookie,'dpr': '1.5','priority': 'u=0, i','sec-ch-prefers-color-scheme': 'dark','sec-ch-ua': '"Chromium";v="130", "Google Chrome";v="130", "Not?A_Brand";v="99"','sec-ch-ua-full-version-list': '"Chromium";v="130.0.6723.117", "Google Chrome";v="130.0.6723.117", "Not?A_Brand";v="99.0.0.0"','sec-ch-ua-mobile': '?0','sec-ch-ua-model': '""','sec-ch-ua-platform': '"Windows"','sec-ch-ua-platform-version': '"15.0.0"','sec-fetch-dest': 'document','sec-fetch-mode': 'navigate','sec-fetch-site': 'same-origin','sec-fetch-user': '?1','upgrade-insecure-requests': '1','user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36','viewport-width': '641',}
-            response = self.ses.get(urlx, headers=headers).text.replace('\\','')
-            if '?fbid=' in urlx:
-                print('\rMengambil Data             ', end='')
-                self.fbid = re.search(r'fbid=(\d+)', str(urlx)).group(1)
-                self.legacy_story_hideable_id = re.search(r'"legacy_story_hideable_id":"(\d+)"', str(response)).group(1)
-                self.data = {'av': re.search(r'"actorID":"(\d+)"', str(response)).group(1),'__aaid': '0','__user': re.search(r'"actorID":"(\d+)"', str(response)).group(1),'__a': '1','__req': '1t','__hs': re.search(r'"haste_session":"(.*?)"', str(response)).group(1),'dpr': '1','__ccg': re.search(r'"connectionClass":"(.*?)"', str(response)).group(1),'__rev': re.search(r'"rev":(\d+)', str(response)).group(1),'__hsi': re.search(r'"hsi":"(\d+)"', str(response)).group(1),'__comet_req': re.search(r'__comet_req=(\d+)&', str(response)).group(1),'fb_dtsg': re.search(r'inputs":\[\{"name":"fb_dtsg","value":"(.*?)"', str(response)).group(1),'jazoest': re.search(r'"name":"jazoest","value":"(\d+)"', str(response)).group(1),'lsd': re.search(r'"LSD",\[\]\,{"token":"(.*?)"', str(response)).group(1),'__spin_r': re.search(r'"__spin_r":(\d+)', str(response)).group(1),'__spin_b': re.search(r'"__spin_b":"(.*?)"', str(response)).group(1),'__spin_t': re.search(r'"__spin_t":(\d+)'  , str(response)).group(1)}
-                return True
-            else:
-                print('\r                                                           ', end='')
-                print('\rRotate Url  ', end='')
-                url = re.findall(r'"url":"(.*?)"', str(response))
-                url = [i for i in url if 'fbid=' in i and '&type=' not in i]
-                return(self.GetData(url[0]))
+            print('\rMengambil Data                                     ', end='')
+            self.legacy_story_hideable_id = re.search(r'"legacy_story_hideable_id":"(\d+)"', str(response)).group(1)
+            self.fbid = str(self.legacy_story_hideable_id)
+            self.Data()
+            return True
         except requests.exceptions.ConnectionError:
-            print('\rKoneksi Bermasalah Sedang Menghubungkan Kembali...        ', end='')
+            print('\rKoneksi Bermasalah Sedang Menghubungkan Kembali...         ', end='')
             time.sleep(7.5)
             print('\r                                                           ', end='')
             return(self.GetData(urlx))
+        except Exception:
+            print(response)
+            print('')
+            return False
         
     def ShareToGroup(self, caption, GroupID):
         print('\rStart Share Post {} To {}                              '.format(self.fbid, GroupID), end='')
@@ -350,7 +368,7 @@ class Share:
                 print('')
                 return True
             except requests.exceptions.ConnectionError:
-                print('\rKoneksi Bermasalah Sedang Menghubungkan Kembali        ', end='')
+                print('\rKoneksi Bermasalah Sedang Menghubungkan Kembali            ', end='')
                 time.sleep(7.5)
                 print('\r                                                           ', end='')
                 return(self.ShareToGroup(caption, GroupID))

@@ -61,7 +61,7 @@ def Print_Results(name, user):
     Author()
     print('                --- Selamat Datang ---   ')
     print('                                         ')
-    print('                  Nama :', name           )
-    print('                  ID   :', user           )
+    print('                 Nama :', name            )
+    print('                 ID   :', user            )
     print('                                         ')
     return True
