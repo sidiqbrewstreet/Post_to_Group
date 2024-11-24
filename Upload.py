@@ -1,4 +1,4 @@
-import requests, re, time, json, uuid, os, random
+import requests, re, time, json, uuid, os, random, traceback
 from itertools import zip_longest
 
 rand_int = lambda min=0, max=100 : str(random.randint(min, max))
@@ -23,6 +23,10 @@ class UploadGraphQL:
         self.ses      = requests.Session()
         self.typ      = int(typ)
         self.cookie   = cookie
+        print('\rTotal Group =-{} Group                       '.format(len(GroupID)))
+        print('')
+        print('')
+        time.sleep(3)
         for dir_path, caption in zip_longest(filename, captionz, fillvalue=None):
             if caption is None:
                 caption = random.choice(captionz) if captionz else ''
@@ -222,6 +226,10 @@ class Share:
         self.ses = requests.Session()
         self.cookie  = cookies
         self.head = {'accept': '*/*','accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7','content-type': 'application/x-www-form-urlencoded','origin': 'https://web.facebook.com','priority': 'u=1, i','referer': 'https://web.facebook.com/profile.php?id={}'.format(re.search(r'c_user=(\d+)', str(self.cookie)).group(1)),'sec-ch-prefers-color-scheme': 'dark','sec-ch-ua': '','sec-ch-ua-full-version-list': '','sec-ch-ua-mobile': '?0','sec-ch-ua-model': '""','sec-ch-ua-platform': '"Windows"','sec-ch-ua-platform-version': '"15.0.0"','sec-fetch-dest': 'empty','sec-fetch-mode': 'cors','sec-fetch-site': 'same-origin','user-agent': '','x-asbd-id': '129477','x-fb-friendly-name': 'ComposerStoryCreateMutation','x-fb-lsd': ''}
+        print('\rTotal Group =-{} Group                       '.format(len(IDGroup)))
+        print('')
+        print('')
+        time.sleep(3)
         for link, captions in zip_longest(url, caption):
             if self.stop_all: break
             else:
@@ -233,25 +241,20 @@ class Share:
                         head = Useragents()
                         self.headers = self.head.copy()
                         self.headers.update({'user-agent': head['user-agent'],'sec-ch-ua' : head['sec-ch-ua'],'sec-ch-ua-full-version-list': head['sec-ch-ua-full-version-list']})
+                        print('\rMengambil Data                                         ', end='')
                         getdata = self.GetData(urlx=link)
-                        # if 'checkpoint' in getdata:
-                        #     print('\rSepertinya Akun Anda Kena Checpoint Silahkan Periksa Akun Anda     ', end='')
-                        #     # self.stop_all = True
-                        #     break
                         if getdata:
+                            print('\rStart Share Post {} To {}                              '.format(self.fbid, GroupID), end='')
                             share = self.ShareToGroup(caption=captions, GroupID=str(GroupID).split('|')[0])
-                            # if 'checkpoint' in share:
-                            #     print('\rSepertinya Akun Anda Kena Checpoint Silahkan Periksa Akun Anda     ', end='')
-                            #     # self.stop_all = True
-                            #     break
                             if share:
+                                self.OK +=1
                                 print('')
                             else:
+                                self.Fail +=1
                                 print('\r                                                           ', end='')
                                 print('\rGagal Share Postingan to > {}                  '.format(str(GroupID).split('|')[0]), end='')
                                 print('')
                                 print('')
-                                self.Fail +=1
                         else: 
                             self.Fail +=1
                             print('\rGagal Mengambil Data                   ', end='')
@@ -274,11 +277,8 @@ class Share:
     def GetData(self, urlx):
         headers  = {'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7','accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7','cache-control': 'max-age=0','dpr': '1.5','priority': 'u=0, i','sec-ch-prefers-color-scheme': 'dark','sec-ch-ua': '"Chromium";v="130", "Google Chrome";v="130", "Not?A_Brand";v="99"','sec-ch-ua-full-version-list': '"Chromium";v="130.0.6723.117", "Google Chrome";v="130.0.6723.117", "Not?A_Brand";v="99.0.0.0"','sec-ch-ua-mobile': '?0','sec-ch-ua-model': '""','sec-ch-ua-platform': '"Windows"','sec-ch-ua-platform-version': '"15.0.0"','sec-fetch-dest': 'document','sec-fetch-mode': 'navigate','sec-fetch-site': 'same-origin','sec-fetch-user': '?1','upgrade-insecure-requests': '1','user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36','viewport-width': '641',}
         response = self.ses.get(urlx, headers=headers, cookies={'cookie': self.cookie}).text.replace('\\','')
-        #if 'checkpoint' in response: return('checkpoint')
-    
         try:
-            print('\rMengambil Data                                     ', end='')
-            self.legacy_story_hideable_id = re.search(r'"legacy_story_hideable_id":"(\d+)"', str(response)).group(1)
+            self.legacy_story_hideable_id = re.search(r'"post_id":"(\d+)"', str(response)).group(1)
             self.fbid = str(self.legacy_story_hideable_id)
             self.Data()
             return True
@@ -288,12 +288,9 @@ class Share:
             print('\r                                                           ', end='')
             return(self.GetData(urlx))
         except Exception:
-            print(response)
-            print('')
             return False
         
     def ShareToGroup(self, caption, GroupID):
-        print('\rStart Share Post {} To {}                              '.format(self.fbid, GroupID), end='')
         self.message = {"ranges":[],"text":caption}
         if isinstance(self.data, dict):
             self.data.update({
@@ -356,20 +353,27 @@ class Share:
                 'doc_id': '8810532655635415',
             })
 
-            response = self.ses.post('https://web.facebook.com/api/graphql/', cookies={'cookie': self.cookie}, headers=self.headers.update({'x-fb-lsd': self.data['lsd']}), data=self.data).text.replace('\\','')
             try:
-                self.OK +=1
-                res = re.findall(r'"url":"(.*?)"', str(response))
-                url_post, url_grop, postingn = res[0], res[1], res[3]
-                print('\r                                                               ', end='')
-                print('\rURL Post  :', url_post)
-                print('URL Group :', url_grop)
-                print('Postingan :', postingn)
-                print('')
-                return True
+                response = self.ses.post('https://web.facebook.com/api/graphql/', cookies={'cookie': self.cookie}, headers=self.headers.update({'x-fb-lsd': self.data['lsd']}), data=self.data).text.replace('\\','')
+                if "Anda Tidak Dapat Menggunakan Fitur Ini Sekarang" in str(response):
+                    print('\rAnda Telah Melewati Batas Limit                ', end='')
+                    print('')
+                    print('')
+                    return False
+                elif GroupID in str(response):
+                    res = re.findall(r'"url":"(.*?)"', str(response))
+                    url_post, url_grop, postingn = res[0], res[1], res[3]
+                    print('\r                                                               ', end='')
+                    print('\rURL Post  :', url_post)
+                    print('URL Group :', url_grop)
+                    print('Postingan :', postingn)
+                    print('')
+                    return True
             except requests.exceptions.ConnectionError:
                 print('\rKoneksi Bermasalah Sedang Menghubungkan Kembali            ', end='')
                 time.sleep(7.5)
                 print('\r                                                           ', end='')
                 return(self.ShareToGroup(caption, GroupID))
-            except Exception: return False
+            except Exception:
+                # traceback.print_exc()
+                return False
