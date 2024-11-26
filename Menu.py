@@ -106,11 +106,7 @@ class Menu:
                     Share(cookies=self.cookie, url=url, caption=caption, IDGroup=list_id_group, timer=timers)
             
             elif chose in ['3', '03', '4', '04']:
-                print('Apakah Ingin Mengunakan Cookie Lain ? (Y/T)')
-                type_cookie = input('[?] Pilih (Y/T) : ').lower();print('')
-                if   type_cookie in ['y']: self.cookie = self.Rotate_Cookie('Rotate');print('')
-                elif type_cookie in ['t']: self.cookie = open('Login/cookie.json','r', encoding='utf-8').read()
-                else: exit('Input Tidak Valid!')
+                
                 if chose in ['3', '03']:
                     types = 1
                     with open(r'GroupID/GroupID.txt', 'r', encoding='utf-8') as r:
@@ -120,7 +116,7 @@ class Menu:
                             exit('')
                         else: pass
                     r.close()
-                elif chose ['4', '04']:
+                elif chose in ['4', '04']:
                     types = 2
                     DM = Dumps(self.cookie)
                     GroupID = DM.Dumps_ID_Group()
@@ -136,5 +132,6 @@ class Menu:
         except KeyboardInterrupt: exit()
 
 if __name__ == '__main__':
+    os.system('git pull')
     lo = Menu()
     
