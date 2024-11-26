@@ -31,11 +31,12 @@ class GraphQL:
         head = Useragents()    
         self.data, self.app_id = self.GetData(head=head)
         try:
-            for GroupID in IDGroup:
+            for x in IDGroup:
                 if   self.types == 1:
-                    print('\rMencoba Bergabung Group {}     '.format(GroupID), end='')
-                    results = self.JoinGroup(data=self.data, GroupID=GroupID, app_id=self.app_id, head=head)
+                    print('\rMencoba Bergabung Group {}     '.format(x), end='')
+                    results = self.JoinGroup(data=self.data, GroupID=x, app_id=self.app_id, head=head)
                 elif self.types == 2:
+                    GroupID = str(x).split('|')[0]
                     print('\rMencoba Leave Group {}     '.format(GroupID), end='')
                     results = self.LeaveGroup(data=self.data, GroupID=GroupID, head=head)
                 if results:
