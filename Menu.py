@@ -1,6 +1,7 @@
 from Login  import *
 from Dumps  import *
 from Upload import *
+from Invite import *
 
 class Menu:
     def __init__(self):
@@ -43,7 +44,17 @@ class Menu:
         try:
             print('[1] Upload Photo to Group')
             print('[2] Shared Photo to Group')
-            chose = input('[?] Pilih : ');print('')
+            print('[3] Joined to Group')
+            print('[4] Leave to Group')
+            print('[5] Logout Session')
+            try: chose = input('[?] Pilih : ')
+            except ValueError:
+                print('')
+                print('Input Harus Berupa Angka')
+                clear()
+                Author()
+                self.MainMenu()
+            print('')
             if not chose: exit('input Tidak Valid!')
             elif chose in ['1', '01']:
                 print('Apakah Ingin Mengunakan Cookie Lain ? (Y/T)')
@@ -93,6 +104,34 @@ class Menu:
                     DM = Dumps(self.cookie)
                     list_id_group = DM.Dumps_ID_Group()
                     Share(cookies=self.cookie, url=url, caption=caption, IDGroup=list_id_group, timer=timers)
+            
+            elif chose in ['3', '03', '4', '04']:
+                print('Apakah Ingin Mengunakan Cookie Lain ? (Y/T)')
+                type_cookie = input('[?] Pilih (Y/T) : ').lower();print('')
+                if   type_cookie in ['y']: self.cookie = self.Rotate_Cookie('Rotate');print('')
+                elif type_cookie in ['t']: self.cookie = open('Login/cookie.json','r', encoding='utf-8').read()
+                else: exit('Input Tidak Valid!')
+                if chose in ['3', '03']:
+                    types = 1
+                    with open(r'GroupID/GroupID.txt', 'r', encoding='utf-8') as r:
+                        GroupID = r.read().splitlines()
+                        if not GroupID:
+                            print('Isi File Kosong, Siahkan Isi ID Group nya Terlebih Dahulu')
+                            exit('')
+                        else: pass
+                    r.close()
+                elif chose ['4', '04']:
+                    types = 2
+                    DM = Dumps(self.cookie)
+                    GroupID = DM.Dumps_ID_Group()
+                print('Atur Waktu Tunggu Dalam Detik')
+                timers = int(input('[?] Delay : '));print('')
+                GraphQL(cookies=self.cookie, IDGroup=GroupID, types=types, timers=timers)
+
+            elif chose in ['5', '05']:
+                os.remove('Login/cookie.json')
+                print('Logout Berhasil, Silahkan Login Kembali Dengan Cookies Fresh')
+                exit('')
             else: exit('Input Tidak Valid!')
         except KeyboardInterrupt: exit()
 
