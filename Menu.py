@@ -40,6 +40,13 @@ class Menu:
                     return(self.Rotate_Cookie('Rotate'))
         else: pass
 
+    def Setting_cookie(self):
+        print('Apakah Ingin Mengunakan Cookie Lain ? (Y/T)')
+        type_cookie = input('[?] Pilih (Y/T) : ').lower();print('')
+        if   type_cookie in ['y']: self.cookie = self.Rotate_Cookie('Rotate');print('')
+        elif type_cookie in ['t']: self.cookie = open('Login/cookie.json','r', encoding='utf-8').read()
+        else: exit('Input Tidak Valid!')
+
     def MainMenu(self):
         try:
             print('[1] Upload Photo to Group')
@@ -57,11 +64,7 @@ class Menu:
             print('')
             if not chose: exit('input Tidak Valid!')
             elif chose in ['1', '01']:
-                print('Apakah Ingin Mengunakan Cookie Lain ? (Y/T)')
-                type_cookie = input('[?] Pilih (Y/T) : ').lower();print('')
-                if   type_cookie in ['y']: self.cookie = self.Rotate_Cookie('Rotate');print('')
-                elif type_cookie in ['t']: self.cookie = open('Login/cookie.json','r', encoding='utf-8').read()
-                else: exit('Input Tidak Valid!')
+                self.Setting_cookie()
                 print('Upload Sebagai Anonim (A) / Personal (P)')
                 model = input('[?] Pilih [A / P] : ');print('')
                 if   model in ['A', 'a', '2', '02']: typ = 1
@@ -84,11 +87,7 @@ class Menu:
                     UploadGraphQL(typ=typ, cookie=self.cookie, GroupID=list_id_group, filename=filename, captionz=caption, timer=timers)
 
             elif chose in ['2', '02']: 
-                print('Apakah Ingin Mengunakan Cookie Lain ? (Y/T)')
-                type_cookie = input('[?] Pilih (Y/T) : ').lower();print('')
-                if   type_cookie in ['y']: self.cookie = self.Rotate_Cookie('Rotate');print('')
-                elif type_cookie in ['t']: self.cookie = open('Login/cookie.json','r', encoding='utf-8').read()
-                else: exit('Input Tidak Valid!')
+                self.Setting_cookie()
                 print('Gunakan Koma (,) Jika Lebih Dari 1')
                 url  = input('[?] Link Post : ').split(',');print('')
                 ctpn = input('Apakah Ingin Menggunakan Caption ? (Y / [ENTER]) : ');print('')
@@ -106,7 +105,9 @@ class Menu:
                     Share(cookies=self.cookie, url=url, caption=caption, IDGroup=list_id_group, timer=timers)
             
             elif chose in ['3', '03', '4', '04']:
-                
+                self.Setting_cookie()
+                print('Atur Waktu Tunggu Dalam Detik')
+                timers = int(input('[?] Delay : '));print('')
                 if chose in ['3', '03']:
                     types = 1
                     with open(r'GroupID/GroupID.txt', 'r', encoding='utf-8') as r:
@@ -120,8 +121,6 @@ class Menu:
                     types = 2
                     DM = Dumps(self.cookie)
                     GroupID = DM.Dumps_ID_Group()
-                print('Atur Waktu Tunggu Dalam Detik')
-                timers = int(input('[?] Delay : '));print('')
                 GraphQL(cookies=self.cookie, IDGroup=GroupID, types=types, timers=timers)
 
             elif chose in ['5', '05']:
